@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using System;
 
-namespace HandlingMessages
+namespace PropsIActorRef
 {
     class ConsoleWriterActor : UntypedActor
     {
