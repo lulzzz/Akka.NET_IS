@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandlingMessages", "Handlin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropsIActorRef", "PropsIActorRef\PropsIActorRef.csproj", "{D59409FB-26C5-4749-87D5-E4E9B27825E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChildHierarchiesSupervision", "ChildHierarchiesSupervision\ChildHierarchiesSupervision.csproj", "{D35E6509-F27B-4455-B393-FF88E54386E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{D59409FB-26C5-4749-87D5-E4E9B27825E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D59409FB-26C5-4749-87D5-E4E9B27825E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D59409FB-26C5-4749-87D5-E4E9B27825E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D35E6509-F27B-4455-B393-FF88E54386E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D35E6509-F27B-4455-B393-FF88E54386E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D35E6509-F27B-4455-B393-FF88E54386E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D35E6509-F27B-4455-B393-FF88E54386E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,5 +52,6 @@ Global
 		{41C8C26D-5867-4A1D-8714-831A8D324099} = {D1B41975-10E4-4FFB-896B-A518B22E2B9E}
 		{31C43446-B6E4-4107-96CA-8F8AA5E81C3E} = {D1B41975-10E4-4FFB-896B-A518B22E2B9E}
 		{D59409FB-26C5-4749-87D5-E4E9B27825E1} = {D1B41975-10E4-4FFB-896B-A518B22E2B9E}
+		{D35E6509-F27B-4455-B393-FF88E54386E2} = {D1B41975-10E4-4FFB-896B-A518B22E2B9E}
 	EndGlobalSection
 EndGlobal
