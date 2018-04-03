@@ -13,7 +13,7 @@ namespace ChartApp.Actors
         /// <summary>
         /// Maximum number of points we will allow in a series
         /// </summary>
-        public const int MaxPoints = 250;
+        public const int MaxPoints = 1;
 
         /// <summary>
         /// Incrementing counter we use to plot along the X-axis
