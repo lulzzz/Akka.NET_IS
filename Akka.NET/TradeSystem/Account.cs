@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TradeSystem
 {
@@ -11,24 +8,24 @@ namespace TradeSystem
     /// </summary>
     public class Account
     {
-        #region Constructors
-        public Account()
-        {
-
-        }
-        #endregion
         #region Fields
         /// <summary>
         /// счетчик объектов класса
         /// </summary>
-        private static int AccuontCounter = 0;
+        private static int accuontCounter = 0;
 
         /// <summary>
-        /// текущий Id
+        /// Id данного аккаунта
         /// </summary>
         private int currentId = 0;
         #endregion
-
+        #region Constructors
+        public Account(decimal money)
+        {
+            Money = ValidMoney(money);
+            currentId = ++accuontCounter;
+        }
+        #endregion
         #region Props
         /// <summary>
         /// возврат Id аккаунта
@@ -41,32 +38,40 @@ namespace TradeSystem
         /// <summary>
         /// Денежный счет
         /// </summary>
-        public decimal Value { get; private set; }
+        public decimal Money { get; private set; }
+        #endregion
+        #region Methods
+        /// <summary>
+        /// положить деньги на счет
+        /// </summary>
+        /// <param name="money"></param>
+        public void PutMoney(decimal money)
+        {
+            Money += ValidMoney(money);
+        }
+        
+        /// <summary>
+        /// снять деньги со счета
+        /// </summary>
+        /// <param name="money"></param>
+        /// <returns></returns>
+        public decimal GetMoney(decimal money)
+        {
+            if (ValidMoney(money) > Money)
+                MessageBox.Show("Недостаточно средств на счете", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else return Money -= money;
+            return 0;
+        }
 
         /// <summary>
-        /// инструмент
+        /// защита от дурака (отрицательные деньги)
         /// </summary>
-        public Instrument Instrument { get; private set; }
-
-        /// <summary>
-        /// лот
-        /// </summary>
-        public float Lot { get; private set; }
-
-        /// <summary>
-        /// количество лотов
-        /// </summary>
-        public float LotNumber { get; private set; }
-
-        /// <summary>
-        /// котировка на момент открытия позиции
-        /// </summary>
-        public float CurrentCote { get; private set; }
-
-        /// <summary>
-        /// котировка на момент закрытия позиции
-        /// </summary>
-        public float NewCote { get; private set; }
+        /// <param name="money"></param>
+        /// <returns></returns>
+        private decimal ValidMoney(decimal money)
+        {
+            return money > 0 ? money : Math.Abs(money);
+        }
         #endregion
     }
 }
