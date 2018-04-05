@@ -23,18 +23,6 @@ namespace TradeSystem
             InitializeComponent();          
         }
 
-       
-
-
-
-        private async Task LoadData()
-        {
-            await Task.Run(() =>
-            {
-                for (int i = 0; i < 1000; i++)
-                    Accounts.Add(new AccountDesk(50.000m, Instrument.Currency, 0.0f, 0.0f, currentCote));
-            });
-        }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -46,7 +34,8 @@ namespace TradeSystem
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            tradeActor = Program.TradeSystemActors.ActorOf(Props.Create()=> new AccountDesk()
+            tradeActor = Program.TradeSystemActors.ActorOf(Props.Create(()=> new AccountDesk(dataGridView1, pauseButton)), "tradeActor");
+            tradeActor.Tell(new AccountDesk.InitializeDGV(null));
         }
 
         private void pauseButton_Click(object sender, EventArgs e)

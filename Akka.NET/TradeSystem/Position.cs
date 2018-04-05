@@ -15,9 +15,20 @@ namespace TradeSystem
         private float _price;
         #endregion
         #region Constructors
-        public Position(Account account, Instrument instrument, )
+        public Position(
+            Account account, 
+            Instrument instrument, 
+            float lot, 
+            float lotNumber, 
+            float currentCote,
+            float newCote)
         {
-
+            Account = account;
+            Instrument = instrument;
+            Lot = lot;
+            LotNumber = lotNumber;
+            CurrentCote = currentCote;
+            NewCote = newCote;
         }
         #endregion
         #region Props
