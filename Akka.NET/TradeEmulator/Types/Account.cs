@@ -1,32 +1,39 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace TradeSystem
+namespace TradeEmulator.Types
 {
-    /// <summary>
-    /// Класс аккаунт
-    /// </summary>
     public class Account
     {
         #region Fields
+
         /// <summary>
         /// счетчик объектов класса
         /// </summary>
-        private static int accuontCounter = 0;
+        private static int accontCounter = 0;
 
         /// <summary>
         /// Id данного аккаунта
         /// </summary>
         private int currentId = 0;
+
         #endregion
+
         #region Constructors
+
         public Account(decimal money)
         {
             Money = ValidMoney(money);
-            currentId = ++accuontCounter;
+            currentId = ++accontCounter;
         }
+
         #endregion
+
         #region Props
+        
         /// <summary>
         /// возврат Id аккаунта
         /// </summary>
@@ -39,7 +46,9 @@ namespace TradeSystem
         /// Денежный счет
         /// </summary>
         public decimal Money { get; private set; }
+
         #endregion
+
         #region Methods
         /// <summary>
         /// положить деньги на счет
@@ -49,18 +58,20 @@ namespace TradeSystem
         {
             Money += ValidMoney(money);
         }
-        
+
         /// <summary>
         /// снять деньги со счета
         /// </summary>
-        /// <param name="money"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public decimal GetMoney(decimal money)
+        public decimal GetMoney(decimal value)
         {
-            if (ValidMoney(money) > Money)
-                MessageBox.Show("Недостаточно средств на счете", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else return Money -= money;
-            return 0;
+            if (ValidMoney(value) > Money)
+            {
+                Console.WriteLine("Ошибка. Аккаунт {0}: Введенная сумма для снятия({1}) больше суммы на счету ({2})", Id, value, Money);
+                return -1;
+            }
+            else return Money -= value;
         }
 
         /// <summary>
@@ -72,6 +83,7 @@ namespace TradeSystem
         {
             return money > 0 ? money : Math.Abs(money);
         }
+
         #endregion
     }
 }

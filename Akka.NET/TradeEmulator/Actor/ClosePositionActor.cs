@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TradeSystem
+namespace TradeEmulator.Actor
 {
-    static class Generator
+    class ClosePositionActor
     {
-
     }
 }
