@@ -16,7 +16,7 @@ namespace TradeEmulator.Types
         /// <summary>
         /// строка соединения
         /// </summary>
-        private readonly string connectionString = "Data Source=.;Initial Catalog=tradedb;Integrated Security=SSPI;";
+        private readonly string connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;";
 
         /// <summary>
         /// вставка позиции в бд
