@@ -16,7 +16,8 @@ namespace TradeEmulator
             PositionState positionState,
             float lot,
             float lotNumber,
-            float cote)
+            float openCote,
+            float closeCote)
         {
             PositionValid = false;
             Account = account;
@@ -24,7 +25,8 @@ namespace TradeEmulator
             PositionState = positionState;
             Lot = lot;
             LotNumber = lotNumber;
-            CoteOnOpenPostion = cote;
+            CoteOnOpenPostion = openCote;
+            CoteOnClosePosition = closeCote;
             ComputePrice();
         }
 

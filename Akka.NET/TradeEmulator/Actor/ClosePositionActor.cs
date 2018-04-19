@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradeEmulator.Types;
 
 namespace TradeEmulator.Actor
 {
@@ -12,5 +13,36 @@ namespace TradeEmulator.Actor
     /// </summary>
     public class ClosePositionActor : ReceiveActor
     {
+
+        #region Constructors
+
+        public ClosePositionActor()
+        {
+            Receive<ClosePosition>(cp => ClosePositionHandler(cp));
+        }
+
+        #endregion
+
+        #region Messages
+
+        public class ClosePosition
+        {
+            public Account Account { get; private set; }
+            public ClosePosition(Account acc)
+            {
+                Account = acc;
+            }
+        }
+
+        #endregion
+
+        #region Handlers
+
+        private void ClosePositionHandler(ClosePosition cp)
+        {
+            
+        }
+
+        #endregion
     }
 }
