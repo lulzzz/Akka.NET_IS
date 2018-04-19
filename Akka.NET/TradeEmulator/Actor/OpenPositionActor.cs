@@ -8,26 +8,58 @@ using TradeEmulator.Types;
 
 namespace TradeEmulator.Actor
 {
+    /// <summary>
+    /// Актор открытия позиций
+    /// </summary>
     public class OpenPositionActor : ReceiveActor
     {
-        Account account;
         #region Constructors
-        public OpenPositionActor(Account acc)
+
+        public OpenPositionActor()
         {
-            account = acc;
+            Receive<OpenPosition>(op => OpenPositionHandler(op));
         }
+        
         #endregion
 
         #region Messages
-        private Account OpenPositionActor(Account acc)
+
+        /// <summary>
+        /// Сообщение открыть позицию
+        /// </summary>
+        public class OpenPosition
         {
-            Account local_account = acc;
-            Instrument inst = Generator.RandomEnumValue<Instrument>();
-            //Posi
+            public Account Account { get; private set; }
+            public OpenPosition(Account acc)
+            {
+                Account = acc;
+            }
         }
+
         #endregion
 
         #region Handlers
+
+        /// <summary>
+        /// Обработка сообщения OpenPosition
+        /// </summary>
+        /// <param name="op"></param>
+        private void OpenPositionHandler(OpenPosition op)
+        {
+            Position position;
+            Instrument instrument = Generator.RandomEnumValue<Instrument>();
+            PositionState positionState = PositionState.Open;
+            float lot = Generator.GetRandomLot();
+            float lotNumber = Generator.GetRandomLotNumber();
+            float cote = Generator.RandomCoteValue(instrument);
+            position = new Position(op.Account, instrument, positionState, lot, lotNumber, cote);
+            if(position.PositionValid)
+            {
+                MSSQL mssql = new MSSQL();
+                mssql.InsertQuery(position);
+            }
+        }
+
         #endregion
     }
 }

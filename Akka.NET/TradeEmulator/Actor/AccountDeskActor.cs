@@ -4,36 +4,59 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradeEmulator.Actor;
 using TradeEmulator.Types;
+using static TradeEmulator.Actor.OpenPositionActor;
 
 namespace TradeEmulator
 {
+    /// <summary>
+    /// Актор генерирует и хранит аккаунты
+    /// </summary>
     public class AccountDeskActor : ReceiveActor
     {
         #region Fields
 
-        private IActorRef OpenPosition;
-        private IActorRef ClosePosition;
+        /// <summary>
+        /// актор открытия позиций
+        /// </summary>
+        private IActorRef openPositionActor;
+
+        /// <summary>
+        /// актор закрытия позиций
+        /// </summary>
+        private IActorRef closePositionActor;
+
+        /// <summary>
+        /// список аккаунтов
+        /// </summary>
         public List<Account> Accounts { get; private set; }
 
         #endregion
+
+        #region Constructors
+
         public AccountDeskActor()
         {
-            OpenPosition = Context.ActorOf(Props.Create<AccountDeskActor>(), "OpenPositionActor");
-            ClosePosition = Context.ActorOf(Props.Create<AccountDeskActor>(), "ClosePositionActor");
+            openPositionActor = Context.ActorOf(Props.Create(() => new OpenPositionActor()));
+            //closePositionActor = Context.ActorOf(Props.Create(() => new ClosePositionActor()));
             Accounts = new List<Account>();
-            Receive<GanerateAccount>(sm => GenerateAccoutsHandler(sm));
-            
+            // прием сообщений
+            Receive<GenerateAccountMessage>(sm => GenerateAccoutsHandler(sm));
+            Receive<OpenPositionMessage>(opm => OpenPositionHandler(opm));
         }
 
+        #endregion
+
         #region Messages
+        
         /// <summary>
         /// Сообщение для генерации аккаунтов
         /// </summary>
-        public class GanerateAccount
+        public class GenerateAccountMessage
         {
             public List<Account> LocalAccounts { get; private set; }
-            public GanerateAccount(int accountNumber)
+            public GenerateAccountMessage(int accountNumber)
             {
                 LocalAccounts = new List<Account>();
                 for (int i = 0; i < accountNumber; i++)
@@ -42,20 +65,45 @@ namespace TradeEmulator
                     LocalAccounts.Add(account);
                 }
             }
-            
         }
+
+        /// <summary>
+        /// Сообщение для открытия позиций
+        /// </summary>
+        public class OpenPositionMessage
+        {
+            public List<Account> Accounts { get; private set; }
+            public OpenPositionMessage(List<Account> accounts)
+            {
+                Accounts = accounts;
+            }
+        }
+
         #endregion
 
         #region Handlers
+
         /// <summary>
-        /// Обработка сообщения генерации аккаунтов
+        /// Обработка сообщения GenerateAccountMessage
         /// </summary>
-        /// <param name="ga"></param>
-        private void GenerateAccoutsHandler(GanerateAccount ga)
+        /// <param name="gam"></param>
+        private void GenerateAccoutsHandler(GenerateAccountMessage gam)
         {
-            Accounts = ga.LocalAccounts;
-            Console.WriteLine("Generated {0} accounts", ga.LocalAccounts.Count);
+            Accounts = gam.LocalAccounts;
+            Console.WriteLine("Сгенерировано {0} аккаунтов", gam.LocalAccounts.Count);
+            Self.Tell(new OpenPositionMessage(Accounts));
         }
+
+        /// <summary>
+        /// обработка сообщения OpenPositionMessage
+        /// </summary>
+        /// <param name="opm"></param>
+        private void OpenPositionHandler(OpenPositionMessage opm)
+        {
+            foreach (Account account in opm.Accounts)
+                openPositionActor.Tell(new OpenPosition(account));
+        }
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using TradeEmulator.Types;
+﻿using System;
+using TradeEmulator.Types;
 
 namespace TradeEmulator
 {
@@ -8,17 +9,22 @@ namespace TradeEmulator
     public class Position
     {
         #region Constructors
+
         public Position(
             Account account,
             Instrument instrument,
+            PositionState positionState,
             float lot,
             float lotNumber,
             float cote)
         {
+            PositionValid = false;
             Account = account;
             Instrument = instrument;
+            PositionState = positionState;
             Lot = lot;
             LotNumber = lotNumber;
+            CoteOnOpenPostion = cote;
             ComputePrice();
         }
 
@@ -31,9 +37,28 @@ namespace TradeEmulator
         /// </summary>
         private Account Account { get; }
 
+        /// <summary>
+        /// котировка по время открытия позиции
+        /// </summary>
         public float CoteOnOpenPostion { get; private set; }
+
+        /// <summary>
+        /// котировка во время закрытия позиции
+        /// </summary>
         public float CoteOnClosePosition { get; private set; }
 
+        /// <summary>
+        /// флаг что позиция валидная для открытия / закрытия,
+        /// т.е. проверяем хватает денег на счету аккаунта
+        /// для открытия позиции или закрытия при loss
+        /// </summary>
+        public bool PositionValid { get; private set; }
+
+        /// <summary>
+        /// состояние позиции
+        /// </summary>
+        public PositionState PositionState { get; private set; }
+        
         /// <summary>
         /// возвращает Id аккаунта
         /// </summary>
@@ -55,15 +80,11 @@ namespace TradeEmulator
                 return Account.Money;
             }
         }
+
         /// <summary>
         /// инструмент
         /// </summary>
         public Instrument Instrument { get; private set; }
-
-        /// <summary>
-        /// состояние позиции (закрыто / открыто)
-        /// </summary>
-        //public PositionState PositionState { get; private set; }
         
         /// <summary>
         /// лот
@@ -80,21 +101,28 @@ namespace TradeEmulator
         /// </summary>
         public float Price { get; private set; }
 
-        /// <summary>
-        /// котировка на момент открытия позиции
-        /// </summary>
-        public float Cote { get; private set; }
-
         #endregion
 
         #region Methods
+        
         /// <summary>
-        /// вычисляем цену
+        /// вычисляем цену и валидируем позицию
         /// </summary>
         private void ComputePrice()
         {
             Price = Lot * LotNumber;
+            if ((decimal)Price <= AccountMoney)
+            {
+                Account.GetMoney((decimal)Price);
+                PositionValid = true;
+            }
+            else if ((decimal)Price > AccountMoney)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Аккаунт {0} не может открыть позицию. Цена {1} > средств на счете {2}", AccountId, Price, AccountMoney);
+            }
         }
+
         #endregion
     }
 }

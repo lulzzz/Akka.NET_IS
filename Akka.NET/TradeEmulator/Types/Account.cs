@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TradeEmulator.Types
 {
+    /// <summary>
+    /// Класс аккаунт
+    /// </summary>
     public class Account
     {
         #region Fields
@@ -16,7 +19,7 @@ namespace TradeEmulator.Types
         private static int accontCounter = 0;
 
         /// <summary>
-        /// Id данного аккаунта
+        /// Id конкретного экземпляра класса
         /// </summary>
         private int currentId = 0;
 
@@ -50,6 +53,7 @@ namespace TradeEmulator.Types
         #endregion
 
         #region Methods
+        
         /// <summary>
         /// положить деньги на счет
         /// </summary>
