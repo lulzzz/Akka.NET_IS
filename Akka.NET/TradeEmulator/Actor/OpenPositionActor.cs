@@ -51,8 +51,9 @@ namespace TradeEmulator.Actor
             PositionState positionState = PositionState.Open;
             float lot = Generator.GetRandomLot();
             float lotNumber = Generator.GetRandomLotNumber();
-            float cote = Generator.RandomCoteValue(instrument);
-            position = new Position(op.Account, instrument, positionState, lot, lotNumber, cote);
+            float closeCote = Generator.RandomOpenCoteValue(instrument);
+            float openCote = Generator.RandomCloseCoteValue(instrument);
+            position = new Position(op.Account, instrument, positionState, lot, lotNumber, openCote, closeCote);
             if(position.PositionValid)
             {
                 MSSQL mssql = new MSSQL();

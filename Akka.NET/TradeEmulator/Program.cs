@@ -14,7 +14,7 @@ namespace TradeEmulator
         {
             ActorSystem TradeEmulatorActor = ActorSystem.Create("TradeActorSystem");
             IActorRef AccountDeskActor = TradeEmulatorActor.ActorOf(Props.Create(() => new AccountDeskActor()));
-            AccountDeskActor.Tell(new GenerateAccountMessage(10));
+            AccountDeskActor.Tell(new GenerateAccountMessage(25));
             Console.ReadLine();
         }
     }

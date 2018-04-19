@@ -15,6 +15,9 @@ namespace TradeEmulator.Types
     {
         /// <summary>
         /// строка соединения
+        /// возникли проблемы на разных машинах
+        /// на десктопе connectionString = "Data Source=.;Initial Catalog=tradedb;Integrated Security=SSPI;
+        /// на ноуте connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;
         /// </summary>
         private readonly string connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;";
 
@@ -27,7 +30,7 @@ namespace TradeEmulator.Types
             //ClearTable();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string insertQuery = "INSERT INTO Positions(AccountId, Money, Instrument, Lot, LotNumber, Price, OpenCote, PositionState) VALUES (@AccountId, @Money, @Instrument, @Lot, @LotNumber, @Price, @OpenCote, @PositionState)";
+                string insertQuery = "INSERT INTO Positions(AccountId, Money, Instrument, Lot, LotNumber, Price, OpenCote, CloseCote, PositionState) VALUES (@AccountId, @Money, @Instrument, @Lot, @LotNumber, @Price, @OpenCote, @CloseCote, @PositionState)";
                 using (SqlCommand command = new SqlCommand(insertQuery))
                 {
                     command.Connection = connection;
@@ -39,11 +42,12 @@ namespace TradeEmulator.Types
                     command.Parameters.Add("@LotNumber", SqlDbType.Float).Value = position.LotNumber;
                     command.Parameters.Add("@Price", SqlDbType.Float).Value = position.Price;
                     command.Parameters.Add("@OpenCote", SqlDbType.Float).Value = position.CoteOnOpenPostion;
+                    command.Parameters.Add("@CloseCote", SqlDbType.Float).Value = position.CoteOnClosePosition;
                     try
                     {
                         connection.Open();
                         int recordsAffected = command.ExecuteNonQuery();
-                        Console.WriteLine("Добавлено {0} записей", recordsAffected);
+                        Console.WriteLine("Добавлена {0} позиция", recordsAffected);
                     }
                     catch(SqlException ex)
                     {
@@ -56,6 +60,7 @@ namespace TradeEmulator.Types
                 }
             }
         }
+
 
         /// <summary>
         /// очистить таблицу
