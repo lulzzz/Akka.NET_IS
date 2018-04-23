@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradeEmulator.Actor;
 using static TradeEmulator.AccountDeskActor;
 
 namespace TradeEmulator
@@ -13,8 +14,7 @@ namespace TradeEmulator
         static void Main(string[] args)
         {
             ActorSystem TradeEmulatorActor = ActorSystem.Create("TradeActorSystem");
-            IActorRef AccountDeskActor = TradeEmulatorActor.ActorOf(Props.Create(() => new AccountDeskActor()));
-            AccountDeskActor.Tell(new GenerateAccountMessage(25));
+            IActorRef RequestResolver = TradeEmulatorActor.ActorOf(Props.Create(() => new RequestResolverActor()));
             Console.ReadLine();
         }
     }

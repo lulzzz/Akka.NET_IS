@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TradeEmulator.Actor;
 using TradeEmulator.Types;
-using static TradeEmulator.Actor.OpenPositionActor;
 
 namespace TradeEmulator
 {
@@ -18,19 +17,9 @@ namespace TradeEmulator
         #region Fields
 
         /// <summary>
-        /// актор открытия позиций
+        /// каждому аккаунту свой актор
         /// </summary>
-        private IActorRef openPositionActor;
-
-        /// <summary>
-        /// актор закрытия позиций
-        /// </summary>
-        private IActorRef closePositionActor;
-
-        /// <summary>
-        /// список аккаунтов
-        /// </summary>
-        public List<Account> Accounts { get; private set; }
+        public Dictionary<IActorRef, Account> Accounts { get; private set; }
 
         #endregion
 
@@ -38,12 +27,11 @@ namespace TradeEmulator
 
         public AccountDeskActor()
         {
-            openPositionActor = Context.ActorOf(Props.Create(() => new OpenPositionActor()));
-            //closePositionActor = Context.ActorOf(Props.Create(() => new ClosePositionActor()));
-            Accounts = new List<Account>();
+            Accounts = new Dictionary<IActorRef, Account>();
             // прием сообщений
             Receive<GenerateAccountMessage>(sm => GenerateAccoutsHandler(sm));
-            Receive<OpenPositionMessage>(opm => OpenPositionHandler(opm));
+            Receive<OpenPositionMessage>(opm => OpenPositionHandler());
+            Receive<ReturnAccountMessage>(ram => ReturnAccountMessageHandler(ram));
         }
 
         #endregion
@@ -55,15 +43,10 @@ namespace TradeEmulator
         /// </summary>
         public class GenerateAccountMessage
         {
-            public List<Account> LocalAccounts { get; private set; }
-            public GenerateAccountMessage(int accountNumber)
+            public int AccountsCount { get; private set; }
+            public GenerateAccountMessage(int accountsCount)
             {
-                LocalAccounts = new List<Account>();
-                for (int i = 0; i < accountNumber; i++)
-                {
-                    Account account = new Account(50000);
-                    LocalAccounts.Add(account);
-                }
+                AccountsCount = accountsCount;
             }
         }
 
@@ -71,11 +54,23 @@ namespace TradeEmulator
         /// Сообщение для открытия позиций
         /// </summary>
         public class OpenPositionMessage
+        { }
+
+        /// Сообщение для закрытия позиций
+        public class ClosePositionMessage
+        { }
+
+        /// <summary>
+        /// возврат аккаунта с открытой позицией
+        /// </summary>
+        public class ReturnAccountMessage
         {
-            public List<Account> Accounts { get; private set; }
-            public OpenPositionMessage(List<Account> accounts)
+            public Account Account { get; private set; }
+            public IActorRef OpenPositionActor { get; private set; }
+            public ReturnAccountMessage(Account acc, IActorRef actor)
             {
-                Accounts = accounts;
+                Account = acc;
+                OpenPositionActor = actor;
             }
         }
 
@@ -89,19 +84,33 @@ namespace TradeEmulator
         /// <param name="gam"></param>
         private void GenerateAccoutsHandler(GenerateAccountMessage gam)
         {
-            Accounts = gam.LocalAccounts;
-            Console.WriteLine("Сгенерировано {0} аккаунтов", gam.LocalAccounts.Count);
-            Self.Tell(new OpenPositionMessage(Accounts));
+            IActorRef OpenPositionActor;
+            for (int i = 0; i < gam.AccountsCount; i++)
+            {
+                Account account = new Account(300000);
+                OpenPositionActor = Context.ActorOf(Props.Create(() => new OpenPositionActor()));
+                Accounts.Add(OpenPositionActor, account);
+            }
+            Console.WriteLine("Сгенерировано {0} аккаунтов", Accounts.Count);
+        }
+
+        /// <summary>
+        /// обработка сообщения ReturnAccountMessage
+        /// </summary>
+        /// <param name="ram"></param>
+        private void ReturnAccountMessageHandler(ReturnAccountMessage ram)
+        {
+            Accounts[ram.OpenPositionActor] = ram.Account;
         }
 
         /// <summary>
         /// обработка сообщения OpenPositionMessage
         /// </summary>
         /// <param name="opm"></param>
-        private void OpenPositionHandler(OpenPositionMessage opm)
+        private void OpenPositionHandler()
         {
-            foreach (Account account in opm.Accounts)
-                openPositionActor.Tell(new OpenPosition(account));
+            foreach (KeyValuePair<IActorRef, Account> item in Accounts)
+                item.Key.Tell(new OpenPositionActor.OpenPositionMessage(item.Value));
         }
 
         #endregion

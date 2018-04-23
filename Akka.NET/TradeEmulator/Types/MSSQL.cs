@@ -19,35 +19,31 @@ namespace TradeEmulator.Types
         /// на десктопе connectionString = "Data Source=.;Initial Catalog=tradedb;Integrated Security=SSPI;
         /// на ноуте connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;
         /// </summary>
-        private readonly string connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;";
-
+        private readonly string connectionString = "Data Source=.;Initial Catalog=tradedb;Integrated Security=SSPI;";
+        
         /// <summary>
         /// вставка позиции в бд
         /// </summary>
-        /// <param name="position"></param>
-        public void InsertQuery(Position position)
+        /// <param name="account"></param>
+        public void InsertPositionQuery(Account account)
         {
+            const string storedProc = "sp_InsertPosition";
             //ClearTable();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string insertQuery = "INSERT INTO Positions(AccountId, Money, Instrument, Lot, LotNumber, Price, OpenCote, CloseCote, PositionState) VALUES (@AccountId, @Money, @Instrument, @Lot, @LotNumber, @Price, @OpenCote, @CloseCote, @PositionState)";
-                using (SqlCommand command = new SqlCommand(insertQuery))
+                using (SqlCommand command = new SqlCommand(storedProc))
                 {
                     command.Connection = connection;
-                    command.Parameters.Add("@AccountId", SqlDbType.Int).Value = position.AccountId;
-                    command.Parameters.Add("@Money", SqlDbType.Decimal).Value = position.AccountMoney;
-                    command.Parameters.Add("@Instrument", SqlDbType.NChar).Value = position.Instrument.ToString();
-                    command.Parameters.Add("@PositionState", SqlDbType.NChar).Value = position.PositionState.ToString();
-                    command.Parameters.Add("@Lot", SqlDbType.Float).Value = position.Lot;
-                    command.Parameters.Add("@LotNumber", SqlDbType.Float).Value = position.LotNumber;
-                    command.Parameters.Add("@Price", SqlDbType.Float).Value = position.Price;
-                    command.Parameters.Add("@OpenCote", SqlDbType.Float).Value = position.CoteOnOpenPostion;
-                    command.Parameters.Add("@CloseCote", SqlDbType.Float).Value = position.CoteOnClosePosition;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add("@AccountId", SqlDbType.Int).Value = account.Id;
+                    command.Parameters.Add("@Instrument", SqlDbType.NChar).Value = account.Position.Instrument.ToString();
+                    command.Parameters.Add("@Lot", SqlDbType.Float).Value = account.Position.Lot;
+                    command.Parameters.Add("@LotNumber", SqlDbType.Float).Value = account.Position.LotNumber;
                     try
                     {
                         connection.Open();
-                        int recordsAffected = command.ExecuteNonQuery();
-                        Console.WriteLine("Добавлена {0} позиция", recordsAffected);
+                        command.ExecuteNonQuery();
+                        Console.WriteLine("Открыта позиция для аккаунта {0}", account.Id);
                     }
                     catch(SqlException ex)
                     {

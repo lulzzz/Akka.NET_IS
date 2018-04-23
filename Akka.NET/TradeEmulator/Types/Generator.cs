@@ -35,39 +35,39 @@ namespace TradeEmulator.Types
             };
         private readonly static float[] GoldOpenRates = 
             {
-                1.50353f,
-                1.10435f,
-                1.72553f,
-                1.40103f,
-                1.39853f,
-                1.10253f,
+                1303.13f,
+                1304.35f,
+                1325.59f,
+                1301.78f,
+                1398.21f,
+                1302.56f,
             };
         private readonly static float[] GoldCloseRates =
             {
-                1.35308f,
-                1.35401f,
-                1.35527f,
-                1.30104f,
-                1.35893f,
-                1.35201f,
+                1353.08f,
+                1354.01f,
+                1355.27f,
+                1301.04f,
+                1358.93f,
+                1352.01f,
             };
         private readonly static float[] SilverOpenRates =
             {
-                1.15308f,
-                1.15401f,
-                1.15527f,
-                1.10104f,
-                1.15893f,
-                1.15201f,
+                17.11f,
+                17.20f,
+                16.95f,
+                16.63f,
+                16.60f,
+                16.63f,
             };
         private readonly static float[] SilverCloseRates =
             {
-                1.12371f,
-                1.15481f,
-                1.14997f,
-                1.15194f,
-                1.13853f,
-                1.14361f,
+                16.66f,
+                16.51f,
+                16.49f,
+                16.28f,
+                16.46f,
+                16.53f,
             };
         private readonly static float[] OilOpenRates =
             {
@@ -87,6 +87,56 @@ namespace TradeEmulator.Types
                 74.25f,
                 74.69f,
             };
+
+
+        /*
+           размеры лотов для инструментов
+           
+           Валютные операции:
+           1.00f, //  10000  у.е.
+           0.05f, //   500
+           0.04f, //   400
+           0.03f, //   300
+           0.02f, //   200
+           0.01f //    100
+           Размер позиции = Котировка * (Размер_Лота * Количество_лотов)
+
+           Золото:
+           1.00f, //    100
+           0.05f, //      5 
+           0.04f, //      4 
+           0.03f, //      3 
+           0.02f, //      2
+           0.01f //       1 тройская унция (ту) = 31,1034768 гр
+
+           Серебро:
+           1.00f, //    1000 
+           0.05f, //      50 
+           0.04f, //      40 
+           0.03f, //      30 
+           0.02f, //      20 
+           0.01f //       10
+           
+           Нефть:
+           1.00f, //    100 баррелей 
+           0.05f, //      50 
+           0.04f, //      40 
+           0.03f, //      30 
+           0.02f, //      20 
+           0.01f //       10
+         */
+        private readonly static float[] LotSize =
+            {
+                1.00f,
+                0.05f,
+                0.04f,
+                0.03f,
+                0.02f,
+                0.01f
+            };
+
+
+
         /// <summary>
         /// Возврат случайного Enum'a
         /// </summary>
@@ -98,32 +148,8 @@ namespace TradeEmulator.Types
             return (T)v.GetValue(new Random().Next(v.Length));
         }
 
-        ///// <summary>
-        ///// Случайный decimal
-        ///// </summary>
-        ///// <param name="rng"></param>
-        ///// <returns></returns>
-        //public static decimal RandomDecimal(this Random rng)
-        //{
-        //    byte scale = (byte)rng.Next(29);
-        //    bool sign = rng.Next(2) == 1;
-        //    return new decimal(rng.NextInt32(), rng.NextInt32(), rng.NextInt32(), sign, scale);
-        //}
-
-        ///// <summary>
-        ///// Вспомагательный метод для RandomDecimal
-        ///// </summary>
-        ///// <param name="rng"></param>
-        ///// <returns></returns>
-        //private static int NextInt32(this Random rng)
-        //{
-        //    int firstBits = rng.Next(0, 1 << 4) << 28;
-        //    int lastBits = rng.Next(0, 1 << 28);
-        //    return firstBits | lastBits;
-        //}
-
         /// <summary>
-        /// получаем индекс какой-то котировки
+        /// получаем индекс в массиве котировок в зависимости от инструмента
         /// </summary>
         /// <param name="inst"></param>
         /// <returns></returns>
@@ -154,63 +180,56 @@ namespace TradeEmulator.Types
         /// </summary>
         /// <param name="inst"></param>
         /// <returns></returns>
-        public static float RandomOpenCoteValue(Instrument inst)
+        public static float RandomQuoteValue(Instrument inst, PositionState positionState)
         {
-            float coteValue = 0.00f;
-            switch (inst)
+            float quote = 0.00f;
+            if (positionState == PositionState.Open)
             {
-                case Instrument.Currency:
-                    coteValue = CurrencyOpenRates[GetRandomIndex(inst)];
-                    break;
-                case Instrument.Gold:
-                    coteValue = GoldOpenRates[GetRandomIndex(inst)];
-                    break;
-                case Instrument.Silver:
-                    coteValue = SilverOpenRates[GetRandomIndex(inst)];
-                    break;
-                case Instrument.Oil:
-                    coteValue = OilOpenRates[GetRandomIndex(inst)];
-                    break;
+                switch (inst)
+                {
+                    case Instrument.Currency:
+                        quote = CurrencyOpenRates[GetRandomIndex(inst)];
+                        break;
+                    case Instrument.Gold:
+                        quote = GoldOpenRates[GetRandomIndex(inst)];
+                        break;
+                    case Instrument.Silver:
+                        quote = SilverOpenRates[GetRandomIndex(inst)];
+                        break;
+                    case Instrument.Oil:
+                        quote = OilOpenRates[GetRandomIndex(inst)];
+                        break;
+                }
             }
-            return coteValue;
-        }
-
-        public static float RandomCloseCoteValue(Instrument inst)
-        {
-            float coteValue = 0.00f;
-            switch (inst)
+            if (positionState == PositionState.Close)
             {
-                case Instrument.Currency:
-                    coteValue = CurrencyCloseRates[GetRandomIndex(inst)];
-                    break;
-                case Instrument.Gold:
-                    coteValue = GoldCloseRates[GetRandomIndex(inst)];
-                    break;
-                case Instrument.Silver:
-                    coteValue = SilverCloseRates[GetRandomIndex(inst)];
-                    break;
-                case Instrument.Oil:
-                    coteValue = OilCloseRates[GetRandomIndex(inst)];
-                    break;
+                switch (inst)
+                {
+                    case Instrument.Currency:
+                        quote = CurrencyCloseRates[GetRandomIndex(inst)];
+                        break;
+                    case Instrument.Gold:
+                        quote = GoldCloseRates[GetRandomIndex(inst)];
+                        break;
+                    case Instrument.Silver:
+                        quote = SilverCloseRates[GetRandomIndex(inst)];
+                        break;
+                    case Instrument.Oil:
+                        quote = OilCloseRates[GetRandomIndex(inst)];
+                        break;
+                }
             }
-            return coteValue;
+            return quote;
         }
 
         /// <summary>
-        /// получаем случайную величину лота (валюта, драгмет, топливо)
+        /// получаем размер лота (валюта, драгмет, топливо)
         /// </summary>
         /// <param name="inst"></param>
         /// <returns></returns>
-        public static float GetRandomLot()
+        public static float GetRandomLotSize(Instrument inst)
         {
-            Random rnd = new Random();
-            return rnd.Next(1, 5000);
-        }
-
-        public static float GetRandomLotNumber()
-        {
-            Random rnd = new Random();
-            return rnd.Next(1, 11);
+            return LotSize[GetRandomIndex(inst)];
         }
     }
 }

@@ -11,77 +11,36 @@ namespace TradeEmulator
         #region Constructors
 
         public Position(
-            Account account,
             Instrument instrument,
-            PositionState positionState,
-            float lot,
             float lotNumber,
-            float openCote,
-            float closeCote)
+            float quote)
         {
-            PositionValid = false;
-            Account = account;
             Instrument = instrument;
-            PositionState = positionState;
-            Lot = lot;
             LotNumber = lotNumber;
-            CoteOnOpenPostion = openCote;
-            CoteOnClosePosition = closeCote;
-            ComputePrice();
+            QuoteOnOpenPosition = quote;
+            PositionPrice = ComputePrice(Instrument);
+            PositionState = PositionState.Idle;
+            GetLotFromLotSize();
         }
 
         #endregion
 
         #region Props
-        
-        /// <summary>
-        /// аккаунт для которого открыта дання позиция
-        /// </summary>
-        private Account Account { get; }
 
         /// <summary>
         /// котировка по время открытия позиции
         /// </summary>
-        public float CoteOnOpenPostion { get; private set; }
+        public float QuoteOnOpenPosition { get; private set; }
 
         /// <summary>
         /// котировка во время закрытия позиции
         /// </summary>
-        public float CoteOnClosePosition { get; private set; }
-
-        /// <summary>
-        /// флаг что позиция валидная для открытия / закрытия,
-        /// т.е. проверяем хватает денег на счету аккаунта
-        /// для открытия позиции или закрытия при loss
-        /// </summary>
-        public bool PositionValid { get; private set; }
+        public float QuoteOnClosePosition { get; set; }
 
         /// <summary>
         /// состояние позиции
         /// </summary>
-        public PositionState PositionState { get; private set; }
-        
-        /// <summary>
-        /// возвращает Id аккаунта
-        /// </summary>
-        public int AccountId
-        {
-            get
-            {
-                return Account.Id;
-            }
-        }
-
-        /// <summary>
-        /// получение средств на счету
-        /// </summary>
-        public decimal AccountMoney
-        {
-            get
-            {
-                return Account.Money;
-            }
-        }
+        public PositionState PositionState { get; set; }
 
         /// <summary>
         /// инструмент
@@ -99,29 +58,84 @@ namespace TradeEmulator
         public float LotNumber { get; private set; }
 
         /// <summary>
-        /// Цена
+        /// Цена позиции
         /// </summary>
-        public float Price { get; private set; }
+        public float PositionPrice { get; private set; }
 
         #endregion
 
         #region Methods
         
         /// <summary>
-        /// вычисляем цену и валидируем позицию
+        /// вычисляем цену в зависимости от инструмента
         /// </summary>
-        private void ComputePrice()
+        public float ComputePrice(Instrument inst)
         {
-            Price = Lot * LotNumber;
-            if ((decimal)Price <= AccountMoney)
+            float local_price_var = 0.00f;
+            switch (inst)
             {
-                Account.GetMoney((decimal)Price);
-                PositionValid = true;
+                case Instrument.Currency:
+                    local_price_var = LotNumber * 10000 * QuoteOnOpenPosition;
+                    break;
+                case Instrument.Silver:
+                    local_price_var = LotNumber * 1000 * QuoteOnOpenPosition;
+                    break;
+                case Instrument.Gold:
+                case Instrument.Oil:
+                    local_price_var = LotNumber * 100 * QuoteOnOpenPosition;
+                    break;   
             }
-            else if ((decimal)Price > AccountMoney)
+            return local_price_var;            
+        }
+
+
+        /// <summary>
+        /// пытаемся закрыть позицию, возвращаем профит / лосс аккаунту и возвращаем его
+        /// </summary>
+        /// <param name="closingQuote"></param>
+        /// <returns></returns>
+        //public void ClosePosition(float closingQuote)
+        //{
+        //    // котировка при закрытии
+        //    QuoteOnClosePosition = closingQuote;
+        //    // получаем цену по новой котировке
+        //    float ClosingPrice = ComputePrice(Instrument);
+        //    // разница
+        //    float Delta = ClosingPrice - PositionPrice;
+        //    // возвращаем деньги на счет аккаунта
+        //    PutMoney((decimal)ClosingPrice);
+        //    // если профит
+        //    if (Delta > 0)
+        //    {
+        //        Console.BackgroundColor = ConsoleColor.Green;
+        //        Console.WriteLine("Аккаунт: {0} позиция закрыта, прибыль: +{1}", AccountId, Delta);
+        //        Console.ResetColor();
+        //    }
+        //    // если loss
+        //    if (Delta < 0)
+        //    {
+        //        Console.BackgroundColor = ConsoleColor.DarkYellow;
+        //        Console.WriteLine("Аккаунт: {0} позиция закрыта, убыток: -{1}", AccountId, Delta);
+        //        Console.ResetColor();
+        //    }
+        //    // фиксируем закрытие позиции
+        //    PositionState = PositionState.Close;
+        //}
+
+        private void GetLotFromLotSize()
+        {
+            switch (Instrument)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Аккаунт {0} не может открыть позицию. Цена {1} > средств на счете {2}", AccountId, Price, AccountMoney);
+                case Instrument.Currency:
+                    Lot = LotNumber * 10000;
+                    break;
+                case Instrument.Silver:
+                    Lot = LotNumber * 1000;
+                    break;
+                case Instrument.Gold:
+                case Instrument.Oil:
+                    Lot = LotNumber * 100;
+                    break;
             }
         }
 

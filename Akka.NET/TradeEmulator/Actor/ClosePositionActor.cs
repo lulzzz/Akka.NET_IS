@@ -27,8 +27,8 @@ namespace TradeEmulator.Actor
 
         public class ClosePosition
         {
-            public Account Account { get; private set; }
-            public ClosePosition(Account acc)
+            public Position Account { get; private set; }
+            public ClosePosition(Position acc)
             {
                 Account = acc;
             }

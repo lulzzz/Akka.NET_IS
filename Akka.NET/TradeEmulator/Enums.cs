@@ -27,14 +27,6 @@ namespace TradeEmulator
     /// </summary>
     public enum PositionState
     {
-        Close, Open
-    }
-
-    /// <summary>
-    /// успешность выполнения операций
-    /// </summary>
-    public enum OperationState
-    {
-        OpenSuccess, OpenError, CloseSuccess, CloseError
+        Idle, Open, Close
     }
 }

@@ -36,7 +36,7 @@ namespace TradeEmulator.Types
         #endregion
 
         #region Props
-        
+
         /// <summary>
         /// возврат Id аккаунта
         /// </summary>
@@ -44,6 +44,8 @@ namespace TradeEmulator.Types
         {
             get { return currentId; }
         }
+
+        public Position Position { get; set; }
 
         /// <summary>
         /// Денежный счет
@@ -53,7 +55,25 @@ namespace TradeEmulator.Types
         #endregion
 
         #region Methods
-        
+
+        // можем ли открыть позицию?
+        public void CanOpenPosition()
+        {
+            // проверяем счет
+            if ((decimal)Position.PositionPrice <= Money)
+            {
+                // фиксируем что у аккаунта хватило средств для открытия позиции
+                Position.PositionState = PositionState.Open;
+                GetMoney((decimal)Position.PositionPrice);
+            }
+            else if ((decimal)Position.PositionPrice > Money)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Аккаунт {0} нельзя открыть позицию. Цена {1} > средств на счете {2}", Id, Position.PositionPrice, Money);
+                Console.ResetColor();
+            }
+        }
+
         /// <summary>
         /// положить деньги на счет
         /// </summary>
