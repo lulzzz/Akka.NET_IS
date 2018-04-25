@@ -18,7 +18,7 @@ namespace TradeEmulator
             Instrument = instrument;
             LotNumber = lotNumber;
             QuoteOnOpenPosition = quote;
-            PositionPrice = ComputePrice(Instrument);
+            PositionPrice = ComputePrice(Instrument, PositionState.Open);
             PositionState = PositionState.Idle;
             GetLotFromLotSize();
         }
@@ -69,58 +69,45 @@ namespace TradeEmulator
         /// <summary>
         /// вычисляем цену в зависимости от инструмента
         /// </summary>
-        public float ComputePrice(Instrument inst)
+        public float ComputePrice(Instrument inst, PositionState ps)
         {
             float local_price_var = 0.00f;
-            switch (inst)
+            if (ps == PositionState.Open)
             {
-                case Instrument.Currency:
-                    local_price_var = LotNumber * 10000 * QuoteOnOpenPosition;
-                    break;
-                case Instrument.Silver:
-                    local_price_var = LotNumber * 1000 * QuoteOnOpenPosition;
-                    break;
-                case Instrument.Gold:
-                case Instrument.Oil:
-                    local_price_var = LotNumber * 100 * QuoteOnOpenPosition;
-                    break;   
+                switch (inst)
+                {
+                    case Instrument.Currency:
+                        local_price_var = LotNumber * 10000 * QuoteOnOpenPosition;
+                        break;
+                    case Instrument.Silver:
+                        local_price_var = LotNumber * 1000 * QuoteOnOpenPosition;
+                        break;
+                    case Instrument.Gold:
+                    case Instrument.Oil:
+                        local_price_var = LotNumber * 100 * QuoteOnOpenPosition;
+                        break;
+                }
+            }
+            if (ps == PositionState.Close)
+            {
+                switch (inst)
+                {
+                    case Instrument.Currency:
+                        local_price_var = LotNumber * 10000 * QuoteOnClosePosition;
+                        break;
+                    case Instrument.Silver:
+                        local_price_var = LotNumber * 1000 * QuoteOnClosePosition;
+                        break;
+                    case Instrument.Gold:
+                    case Instrument.Oil:
+                        local_price_var = LotNumber * 100 * QuoteOnClosePosition;
+                        break;
+                }
             }
             return local_price_var;            
         }
 
 
-        /// <summary>
-        /// пытаемся закрыть позицию, возвращаем профит / лосс аккаунту и возвращаем его
-        /// </summary>
-        /// <param name="closingQuote"></param>
-        /// <returns></returns>
-        //public void ClosePosition(float closingQuote)
-        //{
-        //    // котировка при закрытии
-        //    QuoteOnClosePosition = closingQuote;
-        //    // получаем цену по новой котировке
-        //    float ClosingPrice = ComputePrice(Instrument);
-        //    // разница
-        //    float Delta = ClosingPrice - PositionPrice;
-        //    // возвращаем деньги на счет аккаунта
-        //    PutMoney((decimal)ClosingPrice);
-        //    // если профит
-        //    if (Delta > 0)
-        //    {
-        //        Console.BackgroundColor = ConsoleColor.Green;
-        //        Console.WriteLine("Аккаунт: {0} позиция закрыта, прибыль: +{1}", AccountId, Delta);
-        //        Console.ResetColor();
-        //    }
-        //    // если loss
-        //    if (Delta < 0)
-        //    {
-        //        Console.BackgroundColor = ConsoleColor.DarkYellow;
-        //        Console.WriteLine("Аккаунт: {0} позиция закрыта, убыток: -{1}", AccountId, Delta);
-        //        Console.ResetColor();
-        //    }
-        //    // фиксируем закрытие позиции
-        //    PositionState = PositionState.Close;
-        //}
 
         private void GetLotFromLotSize()
         {

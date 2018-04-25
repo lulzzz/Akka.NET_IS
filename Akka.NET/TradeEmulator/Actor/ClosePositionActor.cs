@@ -27,8 +27,8 @@ namespace TradeEmulator.Actor
 
         public class ClosePosition
         {
-            public Position Account { get; private set; }
-            public ClosePosition(Position acc)
+            public Account Account { get; private set; }
+            public ClosePosition(Account acc)
             {
                 Account = acc;
             }
@@ -41,6 +41,11 @@ namespace TradeEmulator.Actor
         private void ClosePositionHandler(ClosePosition cp)
         {
             
+            Position position = cp.Account.Position;
+            float quote = Generator.RandomQuoteValue(position.Instrument, PositionState.Close);
+            cp.Account.TryClosePosition(quote);
+            // возвращаем аккаунт в OperationActor
+            Sender.Tell(new OperationActor.ReturnClosePositionMessage(cp.Account));
         }
 
         #endregion

@@ -25,15 +25,9 @@ namespace TradeEmulator.Actor
             // сообщения для генераций аккаунтов
             accountDeskActor.Tell(new AccountDeskActor.GenerateAccountMessage(50));
             // аккаунты открывают позиции
-            accountDeskActor.Tell(new AccountDeskActor.OpenPositionMessage());
+            accountDeskActor.Tell(new AccountDeskActor.OperationActorOpenMessage());
         }
-        /*
-         * Сообщения
-         * Например, открыть позицию - посылает запрос  актору OpenPosition (передаем ему Id)
-         * OpenPosition обращается к AccountDesk, чтобы тог вернул ему аккаунт с указанным id
-         * на возвращенный id открывается позиция
-         * 
-         */
+
         #region Messages
 
         #endregion

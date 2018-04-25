@@ -29,4 +29,9 @@ namespace TradeEmulator
     {
         Idle, Open, Close
     }
+
+    public enum ActorOperationType
+    {
+        Open, Close
+    }
 }

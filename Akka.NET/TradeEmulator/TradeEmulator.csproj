@@ -59,6 +59,7 @@
     <Compile Include="Actor\ClosePositionActor.cs" />
     <Compile Include="Actor\NotifyActor.cs" />
     <Compile Include="Actor\OpenPositionActor.cs" />
+    <Compile Include="Actor\OperationActor.cs" />
     <Compile Include="Actor\RequestResolverActor.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Program.cs" />

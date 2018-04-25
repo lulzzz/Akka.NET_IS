@@ -30,14 +30,21 @@ namespace TradeEmulator
             Accounts = new Dictionary<IActorRef, Account>();
             // прием сообщений
             Receive<GenerateAccountMessage>(sm => GenerateAccoutsHandler(sm));
-            Receive<OpenPositionMessage>(opm => OpenPositionHandler());
-            Receive<ReturnAccountMessage>(ram => ReturnAccountMessageHandler(ram));
+
+            Receive<OperationActorOpenMessage>(opm => OperationActorOpenMessageHandler());
+            Receive<ReceiveAccountOpenMessage>(ram => ReceiveAccountOpenMessageHandler(ram));
+
+            Receive<OperationActorCloseMessage>(oacm => OperationActorCloseMessageHandler(oacm));
+            Receive<ReceiveAccountCloseMessage>(ram => ReceiveAccountCloseMessageHandler(ram));
+            
         }
+
+        
 
         #endregion
 
         #region Messages
-        
+
         /// <summary>
         /// Сообщение для генерации аккаунтов
         /// </summary>
@@ -53,26 +60,40 @@ namespace TradeEmulator
         /// <summary>
         /// Сообщение для открытия позиций
         /// </summary>
-        public class OpenPositionMessage
+        public class OperationActorOpenMessage
         { }
 
-        /// Сообщение для закрытия позиций
-        public class ClosePositionMessage
-        { }
-
-        /// <summary>
-        /// возврат аккаунта с открытой позицией
-        /// </summary>
-        public class ReturnAccountMessage
+        public class OperationActorCloseMessage
         {
-            public Account Account { get; private set; }
-            public IActorRef OpenPositionActor { get; private set; }
-            public ReturnAccountMessage(Account acc, IActorRef actor)
+            public KeyValuePair<IActorRef, Account> AccountItem { get; private set; }
+            public OperationActorCloseMessage(KeyValuePair<IActorRef, Account> pair)
             {
-                Account = acc;
-                OpenPositionActor = actor;
+                AccountItem = pair;
             }
         }
+
+        public class ReceiveAccountOpenMessage
+        {
+            public Account Account { get; private set; }
+            public IActorRef Actor { get; private set; }
+            public ReceiveAccountOpenMessage(Account acc, IActorRef actor)
+            {
+                Account = acc;
+                Actor = actor;
+            }
+        }
+
+        public class ReceiveAccountCloseMessage
+        {
+            public Account Account { get; private set; }
+            public IActorRef Actor { get; private set; }
+            public ReceiveAccountCloseMessage(Account acc, IActorRef actor)
+            {
+                Account = acc;
+                Actor = actor;
+            }
+        }
+
 
         #endregion
 
@@ -84,12 +105,12 @@ namespace TradeEmulator
         /// <param name="gam"></param>
         private void GenerateAccoutsHandler(GenerateAccountMessage gam)
         {
-            IActorRef OpenPositionActor;
+            IActorRef OperationActor;
             for (int i = 0; i < gam.AccountsCount; i++)
             {
                 Account account = new Account(300000);
-                OpenPositionActor = Context.ActorOf(Props.Create(() => new OpenPositionActor()));
-                Accounts.Add(OpenPositionActor, account);
+                OperationActor = Context.ActorOf(Props.Create(() => new OperationActor()));
+                Accounts.Add(OperationActor, account);
             }
             Console.WriteLine("Сгенерировано {0} аккаунтов", Accounts.Count);
         }
@@ -98,19 +119,30 @@ namespace TradeEmulator
         /// обработка сообщения ReturnAccountMessage
         /// </summary>
         /// <param name="ram"></param>
-        private void ReturnAccountMessageHandler(ReturnAccountMessage ram)
+        private void ReceiveAccountOpenMessageHandler(ReceiveAccountOpenMessage ram)
         {
-            Accounts[ram.OpenPositionActor] = ram.Account;
+            Accounts[ram.Actor] = ram.Account;
+            Self.Tell(new OperationActorCloseMessage(new KeyValuePair<IActorRef, Account>(ram.Actor, ram.Account)));
+        }
+
+        private void ReceiveAccountCloseMessageHandler(ReceiveAccountCloseMessage ram)
+        {
+            Accounts[ram.Actor] = ram.Account;
         }
 
         /// <summary>
         /// обработка сообщения OpenPositionMessage
         /// </summary>
         /// <param name="opm"></param>
-        private void OpenPositionHandler()
+        private void OperationActorOpenMessageHandler()
         {
             foreach (KeyValuePair<IActorRef, Account> item in Accounts)
-                item.Key.Tell(new OpenPositionActor.OpenPositionMessage(item.Value));
+                item.Key.Tell(new OperationActor.OperationActorMessage(ActorOperationType.Open, item.Value));
+        }
+
+        public void OperationActorCloseMessageHandler(OperationActorCloseMessage oacm)
+        {
+            oacm.AccountItem.Key.Tell((new OperationActor.OperationActorMessage(ActorOperationType.Close, oacm.AccountItem.Value)));
         }
 
         #endregion

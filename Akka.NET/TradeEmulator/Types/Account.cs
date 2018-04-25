@@ -29,7 +29,7 @@ namespace TradeEmulator.Types
 
         public Account(decimal money)
         {
-            Money = ValidMoney(money);
+            Money = ValidateMoney(money);
             currentId = ++accontCounter;
         }
 
@@ -80,7 +80,7 @@ namespace TradeEmulator.Types
         /// <param name="money"></param>
         public void PutMoney(decimal money)
         {
-            Money += ValidMoney(money);
+            Money += ValidateMoney(money);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace TradeEmulator.Types
         /// <returns></returns>
         public decimal GetMoney(decimal value)
         {
-            if (ValidMoney(value) > Money)
+            if (ValidateMoney(value) > Money)
             {
                 Console.WriteLine("Ошибка. Аккаунт {0}: Введенная сумма для снятия({1}) больше суммы на счету ({2})", Id, value, Money);
                 return -1;
@@ -103,11 +103,51 @@ namespace TradeEmulator.Types
         /// </summary>
         /// <param name="money"></param>
         /// <returns></returns>
-        private decimal ValidMoney(decimal money)
+        private decimal ValidateMoney(decimal money)
         {
             return money > 0 ? money : Math.Abs(money);
         }
 
+        /// <summary>
+        /// пытаемся закрыть позицию, возвращаем профит / лосс аккаунту и возвращаем его
+        /// </summary>
+        /// <param name="closingQuote"></param>
+        /// <returns></returns>
+        public void TryClosePosition(float closingQuote)
+        {
+            if (Position.PositionState == PositionState.Open)
+            {
+                // котировка при закрытии
+                Position.QuoteOnClosePosition = closingQuote;
+
+                // получаем цену по новой котировке
+                float ClosingPrice = Position.ComputePrice(Position.Instrument, PositionState.Close);
+
+                // разница
+                float Delta = ClosingPrice - Position.PositionPrice;
+
+                // если профит
+                if (Delta > 0)
+                {
+                    // возвращаем деньги на счет аккаунта
+                    PutMoney((decimal)ClosingPrice);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Аккаунт: {0} позиция закрыта, прибыль: +{1}$", Id, Delta);
+                    Console.ResetColor();
+                }
+
+                // если loss
+                if (Delta < 0)
+                {
+
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("Аккаунт: {0} позиция закрыта, убыток: {1}", Id, Delta);
+                        Console.ResetColor();
+                }
+                // фиксируем закрытие позиции
+                Position.PositionState = PositionState.Close;
+            }
+        }
         #endregion
     }
 }
