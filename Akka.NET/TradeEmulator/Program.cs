@@ -9,6 +9,10 @@ using static TradeEmulator.AccountDeskActor;
 
 namespace TradeEmulator
 {
+    /* TODO
+     Замерять время не одной позиции а конкретного количества позиций, например 10000
+     Позиции из бд не удаляются после закрытия
+     */
     class Program
     {
         static void Main(string[] args)

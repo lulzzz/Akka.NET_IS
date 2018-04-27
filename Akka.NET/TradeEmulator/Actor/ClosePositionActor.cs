@@ -45,7 +45,7 @@ namespace TradeEmulator.Actor
             float quote = Generator.RandomQuoteValue(position.Instrument, PositionState.Close);
             cp.Account.TryClosePosition(quote);
             // возвращаем аккаунт в OperationActor
-            Sender.Tell(new OperationActor.ReturnClosePositionMessage(cp.Account));
+            Sender.Tell(new OperationActor.ReturnActorMessage(cp.Account));
         }
 
         #endregion

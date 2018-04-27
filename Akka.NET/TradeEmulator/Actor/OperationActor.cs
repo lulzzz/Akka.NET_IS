@@ -24,8 +24,8 @@ namespace TradeEmulator.Actor
         public OperationActor()
         {
             Receive<OperationActorMessage>(oam => OperationActorMessageHandler(oam));
-            Receive<ReturnOpenPositionMessage>(ropm => ReturnOpenPositionMessageHandler(ropm));
-            Receive<ReturnClosePositionMessage>(rcpm => ReturnClosePositionMessageHandler(rcpm));
+            Receive<ReturnActorMessage>(ropm => ReturnActorMessageHandler(ropm));
+            //Receive<ReturnClosePositionMessage>(rcpm => ReturnClosePositionMessageHandler(rcpm));
         }
         #endregion
 
@@ -51,25 +51,25 @@ namespace TradeEmulator.Actor
         /// возврат аккаунта с открытой позицией
         /// </summary>
 
-        public class ReturnOpenPositionMessage
+        public class ReturnActorMessage
         {
             public Account Account { get; private set; }
             public IActorRef Actor { get; private set; }
-            public ReturnOpenPositionMessage(Account acc)
+            public ReturnActorMessage(Account acc)
             {
                 Account = acc;
             }
         }
 
-        public class ReturnClosePositionMessage
-        {
-            public Account Account { get; private set; }
-            public IActorRef Actor { get; private set; }
-            public ReturnClosePositionMessage(Account acc)
-            {
-                Account = acc;
-            }
-        }
+        //public class ReturnClosePositionMessage
+        //{
+        //    public Account Account { get; private set; }
+        //    public IActorRef Actor { get; private set; }
+        //    public ReturnClosePositionMessage(Account acc)
+        //    {
+        //        Account = acc;
+        //    }
+        //}
         #endregion
 
         #region Handlers
@@ -98,15 +98,15 @@ namespace TradeEmulator.Actor
         /// обработка сообщения ReturnAccountMessage
         /// </summary>
         /// <param name="ram"></param>
-        private void ReturnOpenPositionMessageHandler(ReturnOpenPositionMessage ropm)
+        private void ReturnActorMessageHandler(ReturnActorMessage ram)
         {
-            Context.Parent.Tell(new AccountDeskActor.ReceiveAccountOpenMessage(ropm.Account, Self));
+            Context.Parent.Tell(new AccountDeskActor.ReceiveAccountMessage(ram.Account, Self));
         }
 
-        private void ReturnClosePositionMessageHandler(ReturnClosePositionMessage rcpm)
-        {
-            Context.Parent.Tell(new AccountDeskActor.ReceiveAccountCloseMessage(rcpm.Account, Self));
-        }
+        //private void ReturnClosePositionMessageHandler(ReturnClosePositionMessage rcpm)
+        //{
+        //    Context.Parent.Tell(new AccountDeskActor.ReceiveAccountCloseMessage(rcpm.Account, Self));
+        //}
         #endregion
 
     }

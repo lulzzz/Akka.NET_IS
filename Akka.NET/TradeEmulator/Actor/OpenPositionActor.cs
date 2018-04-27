@@ -68,7 +68,7 @@ namespace TradeEmulator.Actor
                 Console.WriteLine("Time elapsed: {0}", stopwatch.ElapsedMilliseconds);
             }
             // возвращаем аккаунт в OperationActor
-            Sender.Tell(new OperationActor.ReturnOpenPositionMessage(opm.Account));
+            Sender.Tell(new OperationActor.ReturnActorMessage(opm.Account));
         }
 
         #endregion

@@ -10,6 +10,8 @@ namespace TradeEmulator.Actor
 {
     /// <summary>
     /// Уведомления для RequestResolverActor
+    /// TODO
+    /// Значит уведомления об закрытии позиции будут здесь а не в ClosePositionActor
     /// </summary>
     public class NotifyActor : ReceiveActor
     {

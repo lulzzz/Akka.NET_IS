@@ -23,7 +23,7 @@ namespace TradeEmulator.Actor
         {
             accountDeskActor = Context.ActorOf(Props.Create(() => new AccountDeskActor()));
             // сообщения для генераций аккаунтов
-            accountDeskActor.Tell(new AccountDeskActor.GenerateAccountMessage(50));
+            accountDeskActor.Tell(new AccountDeskActor.GenerateAccountMessage(10000));
             // аккаунты открывают позиции
             accountDeskActor.Tell(new AccountDeskActor.OperationActorOpenMessage());
         }

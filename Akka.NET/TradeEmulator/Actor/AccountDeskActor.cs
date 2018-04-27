@@ -32,10 +32,10 @@ namespace TradeEmulator
             Receive<GenerateAccountMessage>(sm => GenerateAccoutsHandler(sm));
 
             Receive<OperationActorOpenMessage>(opm => OperationActorOpenMessageHandler());
-            Receive<ReceiveAccountOpenMessage>(ram => ReceiveAccountOpenMessageHandler(ram));
+            Receive<ReceiveAccountMessage>(ram => ReceiveAccountMessageHandler(ram));
 
             Receive<OperationActorCloseMessage>(oacm => OperationActorCloseMessageHandler(oacm));
-            Receive<ReceiveAccountCloseMessage>(ram => ReceiveAccountCloseMessageHandler(ram));
+            //Receive<ReceiveAccountCloseMessage>(ram => ReceiveAccountCloseMessageHandler(ram));
             
         }
 
@@ -72,27 +72,27 @@ namespace TradeEmulator
             }
         }
 
-        public class ReceiveAccountOpenMessage
+        public class ReceiveAccountMessage
         {
             public Account Account { get; private set; }
             public IActorRef Actor { get; private set; }
-            public ReceiveAccountOpenMessage(Account acc, IActorRef actor)
+            public ReceiveAccountMessage(Account acc, IActorRef actor)
             {
                 Account = acc;
                 Actor = actor;
             }
         }
 
-        public class ReceiveAccountCloseMessage
-        {
-            public Account Account { get; private set; }
-            public IActorRef Actor { get; private set; }
-            public ReceiveAccountCloseMessage(Account acc, IActorRef actor)
-            {
-                Account = acc;
-                Actor = actor;
-            }
-        }
+        //public class ReceiveAccountCloseMessage
+        //{
+        //    public Account Account { get; private set; }
+        //    public IActorRef Actor { get; private set; }
+        //    public ReceiveAccountCloseMessage(Account acc, IActorRef actor)
+        //    {
+        //        Account = acc;
+        //        Actor = actor;
+        //    }
+        //}
 
 
         #endregion
@@ -119,16 +119,16 @@ namespace TradeEmulator
         /// обработка сообщения ReturnAccountMessage
         /// </summary>
         /// <param name="ram"></param>
-        private void ReceiveAccountOpenMessageHandler(ReceiveAccountOpenMessage ram)
+        private void ReceiveAccountMessageHandler(ReceiveAccountMessage ram)
         {
             Accounts[ram.Actor] = ram.Account;
             Self.Tell(new OperationActorCloseMessage(new KeyValuePair<IActorRef, Account>(ram.Actor, ram.Account)));
         }
 
-        private void ReceiveAccountCloseMessageHandler(ReceiveAccountCloseMessage ram)
-        {
-            Accounts[ram.Actor] = ram.Account;
-        }
+        //private void ReceiveAccountCloseMessageHandler(ReceiveAccountCloseMessage ram)
+        //{
+        //    Accounts[ram.Actor] = ram.Account;
+        //}
 
         /// <summary>
         /// обработка сообщения OpenPositionMessage
