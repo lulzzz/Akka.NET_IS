@@ -15,14 +15,13 @@ namespace TradeEmulator.Actor
     public class OpenPositionActor : ReceiveActor
     {
         #region Fields
-        private Stopwatch stopwatch;
+        
         #endregion
         #region Constructors
 
         public OpenPositionActor()
         {
             Receive<OpenPositionMessage>(op => OpenPositionHandler(op));
-            stopwatch = new Stopwatch();
         }
         
         #endregion
@@ -59,15 +58,15 @@ namespace TradeEmulator.Actor
             float quote = Generator.RandomQuoteValue(instrument, PositionState.Open);
             position = new Position(instrument, lotNumber, quote);
             opm.Account.Position = position;
+            
+            // проверяем можем ли открыть позицию
             opm.Account.CanOpenPosition();
+            
+            // если позиция открыта, добавляем в бд
             if (opm.Account.Position.PositionState == PositionState.Open)
-            {
-                stopwatch.Start();
                 mssql.InsertPositionQuery(opm.Account);
-                stopwatch.Stop();
-                Console.WriteLine("Time elapsed: {0}", stopwatch.ElapsedMilliseconds);
-            }
-            // возвращаем аккаунт в OperationActor
+            
+            // возвращаем аккаунт в родительский актор OperationActor
             Sender.Tell(new OperationActor.ReturnActorMessage(opm.Account));
         }
 

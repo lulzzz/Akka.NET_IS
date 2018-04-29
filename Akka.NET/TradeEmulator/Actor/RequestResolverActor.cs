@@ -21,7 +21,7 @@ namespace TradeEmulator.Actor
         #endregion
         public RequestResolverActor()
         {
-            accountDeskActor = Context.ActorOf(Props.Create(() => new AccountDeskActor()));
+            accountDeskActor = Context.ActorOf(Props.Create(() => new AccountDeskActor()), "AccountDeskActor");
             // сообщения для генераций аккаунтов
             accountDeskActor.Tell(new AccountDeskActor.GenerateAccountMessage(10000));
             // аккаунты открывают позиции

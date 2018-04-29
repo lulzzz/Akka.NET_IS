@@ -61,6 +61,7 @@
     <Compile Include="Actor\OpenPositionActor.cs" />
     <Compile Include="Actor\OperationActor.cs" />
     <Compile Include="Actor\RequestResolverActor.cs" />
+    <Compile Include="Actor\TransactionFeeActor.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

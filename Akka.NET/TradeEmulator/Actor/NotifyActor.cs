@@ -1,57 +1,76 @@
 ﻿using Akka.Actor;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TradeEmulator.Types;
 
-namespace TradeEmulator.Actor
+namespace TradeEmulator
 {
     /// <summary>
-    /// Уведомления для RequestResolverActor
-    /// TODO
-    /// Значит уведомления об закрытии позиции будут здесь а не в ClosePositionActor
+    /// Уведомление
     /// </summary>
     public class NotifyActor : ReceiveActor
     {
+        #region Fields
+
+        private static Stopwatch stopwatch = new Stopwatch();
+        public static int counter = 0;
+        private int accountsCount;
+
+        #endregion
+
+        #region Constructors
+        public NotifyActor()
+        {
+            Receive<AccountCounterMessage>(c => AccountCounterHandler());
+            Receive<InitMessage>(im => InitMessageHandler(im));
+        }
+        #endregion
+
         #region Messages
         
         /// <summary>
-        ///  уведомляем что конкретный аккаунт открыл позицию
+        ///  сообщение подсчета аккаунтов которые закрыли позиции
         /// </summary>
-        public class PositionIsOpen
-        {
-            public Account Account { get; private set; }
-            public PositionIsOpen(Account account)
-            {
-
-            }
-        }
+        public class AccountCounterMessage { }
 
         /// <summary>
-        /// конкретный аккаунт закрыл позицию
+        /// сюда передаем количество созданных аккаунтов из AccountDeskActor
+        /// одновременно включаем таймер отчета времени
         /// </summary>
-        public class PositionIsClosed
+        public class InitMessage
         {
-            public Account Account { get; private set; }
-            public PositionIsClosed(Account account)
+            public int AccountCount { get; private set; }
+            public InitMessage(int accountCount)
             {
-
+                AccountCount = accountCount;
             }
         }
+
         #endregion
 
         #region Handlers
 
-        public void PositionIsOpenHandler(PositionIsOpen pio)
+        /// <summary>
+        /// обработка сообщения AccountCounterMessage
+        /// </summary>
+        private void AccountCounterHandler()
         {
-
+            counter++;
+            if (counter == accountsCount)
+            {
+                stopwatch.Stop();
+                Console.WriteLine("Обработано {0} позиций, время {1} мс.", counter, stopwatch.ElapsedMilliseconds);
+            }
         }
 
-        public void PositionIsClosedHandler(PositionIsClosed pic)
+        private void InitMessageHandler(InitMessage im)
         {
-
+            accountsCount = im.AccountCount;
+            stopwatch.Start();
         }
         #endregion
     }

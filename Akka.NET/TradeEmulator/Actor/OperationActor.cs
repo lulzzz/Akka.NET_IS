@@ -18,6 +18,7 @@ namespace TradeEmulator.Actor
         #region Fields
         private IActorRef openPositionActor;
         private IActorRef closePositionActor;
+        
         #endregion
 
         #region Constructors
@@ -25,7 +26,6 @@ namespace TradeEmulator.Actor
         {
             Receive<OperationActorMessage>(oam => OperationActorMessageHandler(oam));
             Receive<ReturnActorMessage>(ropm => ReturnActorMessageHandler(ropm));
-            //Receive<ReturnClosePositionMessage>(rcpm => ReturnClosePositionMessageHandler(rcpm));
         }
         #endregion
 
@@ -61,15 +61,6 @@ namespace TradeEmulator.Actor
             }
         }
 
-        //public class ReturnClosePositionMessage
-        //{
-        //    public Account Account { get; private set; }
-        //    public IActorRef Actor { get; private set; }
-        //    public ReturnClosePositionMessage(Account acc)
-        //    {
-        //        Account = acc;
-        //    }
-        //}
         #endregion
 
         #region Handlers
@@ -103,10 +94,6 @@ namespace TradeEmulator.Actor
             Context.Parent.Tell(new AccountDeskActor.ReceiveAccountMessage(ram.Account, Self));
         }
 
-        //private void ReturnClosePositionMessageHandler(ReturnClosePositionMessage rcpm)
-        //{
-        //    Context.Parent.Tell(new AccountDeskActor.ReceiveAccountCloseMessage(rcpm.Account, Self));
-        //}
         #endregion
 
     }

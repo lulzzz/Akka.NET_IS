@@ -17,9 +17,15 @@ namespace TradeEmulator
         #region Fields
 
         /// <summary>
-        /// каждому аккаунту свой актор
+        /// для каждого аккаунта OpenPositionActor
         /// </summary>
         public Dictionary<IActorRef, Account> Accounts { get; private set; }
+
+        /// <summary>
+        /// актор-нотификатор. передаем ему сообщение для старта отсчета времени
+        /// как только начинаются передаваться сообщения на открытие позиций
+        /// </summary>
+        private IActorRef notifyActor;
 
         #endregion
 
@@ -28,18 +34,12 @@ namespace TradeEmulator
         public AccountDeskActor()
         {
             Accounts = new Dictionary<IActorRef, Account>();
-            // прием сообщений
+            notifyActor = Context.ActorOf(Props.Create(() => new NotifyActor()), "NotifyActor");
             Receive<GenerateAccountMessage>(sm => GenerateAccoutsHandler(sm));
-
             Receive<OperationActorOpenMessage>(opm => OperationActorOpenMessageHandler());
             Receive<ReceiveAccountMessage>(ram => ReceiveAccountMessageHandler(ram));
-
             Receive<OperationActorCloseMessage>(oacm => OperationActorCloseMessageHandler(oacm));
-            //Receive<ReceiveAccountCloseMessage>(ram => ReceiveAccountCloseMessageHandler(ram));
-            
         }
-
-        
 
         #endregion
 
@@ -60,9 +60,11 @@ namespace TradeEmulator
         /// <summary>
         /// Сообщение для открытия позиций
         /// </summary>
-        public class OperationActorOpenMessage
-        { }
+        public class OperationActorOpenMessage {}
 
+        /// <summary>
+        /// сообщение для закрытия позиций
+        /// </summary>
         public class OperationActorCloseMessage
         {
             public KeyValuePair<IActorRef, Account> AccountItem { get; private set; }
@@ -72,6 +74,9 @@ namespace TradeEmulator
             }
         }
 
+        /// <summary>
+        /// сообщение на прием аккаунта из OperationActor
+        /// </summary>
         public class ReceiveAccountMessage
         {
             public Account Account { get; private set; }
@@ -83,18 +88,6 @@ namespace TradeEmulator
             }
         }
 
-        //public class ReceiveAccountCloseMessage
-        //{
-        //    public Account Account { get; private set; }
-        //    public IActorRef Actor { get; private set; }
-        //    public ReceiveAccountCloseMessage(Account acc, IActorRef actor)
-        //    {
-        //        Account = acc;
-        //        Actor = actor;
-        //    }
-        //}
-
-
         #endregion
 
         #region Handlers
@@ -105,12 +98,13 @@ namespace TradeEmulator
         /// <param name="gam"></param>
         private void GenerateAccoutsHandler(GenerateAccountMessage gam)
         {
-            IActorRef OperationActor;
+            IActorRef operationActor;
             for (int i = 0; i < gam.AccountsCount; i++)
             {
+                // у каждого аккаунта по умолчанию на счету 300000 USD
                 Account account = new Account(300000);
-                OperationActor = Context.ActorOf(Props.Create(() => new OperationActor()));
-                Accounts.Add(OperationActor, account);
+                operationActor = Context.ActorOf(Props.Create(() => new OperationActor()));
+                Accounts.Add(operationActor, account);
             }
             Console.WriteLine("Сгенерировано {0} аккаунтов", Accounts.Count);
         }
@@ -125,21 +119,24 @@ namespace TradeEmulator
             Self.Tell(new OperationActorCloseMessage(new KeyValuePair<IActorRef, Account>(ram.Actor, ram.Account)));
         }
 
-        //private void ReceiveAccountCloseMessageHandler(ReceiveAccountCloseMessage ram)
-        //{
-        //    Accounts[ram.Actor] = ram.Account;
-        //}
-
         /// <summary>
         /// обработка сообщения OpenPositionMessage
         /// </summary>
         /// <param name="opm"></param>
         private void OperationActorOpenMessageHandler()
         {
+            // запускаем таймер в NotifyActor
+            notifyActor.Tell(new NotifyActor.InitMessage(Accounts.Count));
+            
+            // открываем позиции
             foreach (KeyValuePair<IActorRef, Account> item in Accounts)
                 item.Key.Tell(new OperationActor.OperationActorMessage(ActorOperationType.Open, item.Value));
         }
 
+        /// <summary>
+        /// обработка сообщения OperationActorCloseMessage
+        /// </summary>
+        /// <param name="oacm"></param>
         public void OperationActorCloseMessageHandler(OperationActorCloseMessage oacm)
         {
             oacm.AccountItem.Key.Tell((new OperationActor.OperationActorMessage(ActorOperationType.Close, oacm.AccountItem.Value)));

@@ -68,19 +68,18 @@ namespace TradeEmulator.Types
             }
             else if ((decimal)Position.PositionPrice > Money)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Аккаунт {0} нельзя открыть позицию. Цена {1} > средств на счете {2}", Id, Position.PositionPrice, Money);
-                Console.ResetColor();
+                //Console.WriteLine("Аккаунт {0} нельзя открыть позицию. Цена {1}USD > средств на счете {2}USD", Id, Position.PositionPrice, Money);
             }
         }
 
         /// <summary>
         /// положить деньги на счет
         /// </summary>
-        /// <param name="money"></param>
-        public void PutMoney(decimal money)
+        /// <param name="value"></param>
+        public void PutMoney(decimal value)
         {
-            Money += ValidateMoney(money);
+            Money += ValidateMoney(value);
+            //Console.WriteLine("Аккаунт {0}: Аккаунт пополнен на: {1}USD, остатоr на счете {2}USD", Id, value, Money);
         }
 
         /// <summary>
@@ -88,14 +87,34 @@ namespace TradeEmulator.Types
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public decimal GetMoney(decimal value)
+        public void GetMoney(decimal value)
         {
             if (ValidateMoney(value) > Money)
             {
-                Console.WriteLine("Ошибка. Аккаунт {0}: Введенная сумма для снятия({1}) больше суммы на счету ({2})", Id, value, Money);
-                return -1;
+                //Console.WriteLine("Аккаунт {0}: Невозможно снять {1}USD, на счету {2}USD", Id, value, Money);
             }
-            else return Money -= value;
+            else
+            {
+                Money -= value;
+                //Console.WriteLine("Аккаунт {0}: Снято: {1}USD, остаток на счете {2}USD", Id, value, Money);
+            }
+        }
+
+        /// <summary>
+        /// комиссия
+        /// </summary>
+        /// <param name="value"></param>
+        public void GetFee(decimal value)
+        {
+            if (ValidateMoney(value) > Money)
+            {
+                //Console.WriteLine("Аккаунт {0}: Невозможно снять комиссию {1}USD, на счету {2}USD", Id, value, Money);
+            }
+            else
+            {
+                Money -= value;
+                //Console.WriteLine("Аккаунт {0}: Комиссия: {1}USD, остаток на счете {2}USD", Id, value, Money);
+            }
         }
 
         /// <summary>
@@ -131,18 +150,13 @@ namespace TradeEmulator.Types
                 {
                     // возвращаем деньги на счет аккаунта
                     PutMoney((decimal)ClosingPrice);
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Аккаунт: {0} позиция закрыта, прибыль: +{1}$", Id, Delta);
-                    Console.ResetColor();
+                    //Console.WriteLine("Аккаунт: {0} позиция закрыта, прибыль: +{1}$", Id, Delta);
                 }
 
                 // если loss
                 if (Delta < 0)
                 {
-
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        Console.WriteLine("Аккаунт: {0} позиция закрыта, убыток: {1}", Id, Delta);
-                        Console.ResetColor();
+                    //Console.WriteLine("Аккаунт: {0} позиция закрыта, убыток: {1}", Id, Delta);
                 }
                 // фиксируем закрытие позиции
                 Position.PositionState = PositionState.Close;

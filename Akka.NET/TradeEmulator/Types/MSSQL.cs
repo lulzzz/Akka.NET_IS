@@ -19,7 +19,7 @@ namespace TradeEmulator.Types
         /// на десктопе connectionString = "Data Source=.;Initial Catalog=tradedb;Integrated Security=SSPI;
         /// на ноуте connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;
         /// </summary>
-        private readonly string connectionString = "Data Source=HP\\HPSERVER;Initial Catalog=tradedb;Integrated Security=SSPI;";
+        private readonly string connectionString = "Data Source=.;Initial Catalog=tradedb;Integrated Security=SSPI;";
         
         /// <summary>
         /// вставка позиции в бд
@@ -28,7 +28,6 @@ namespace TradeEmulator.Types
         public void InsertPositionQuery(Account account)
         {
             const string storedProc = "sp_InsertPosition";
-            //ClearTable();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 using (SqlCommand command = new SqlCommand(storedProc))
@@ -43,7 +42,7 @@ namespace TradeEmulator.Types
                     {
                         connection.Open();
                         command.ExecuteNonQuery();
-                        Console.WriteLine("Открыта позиция для аккаунта {0}", account.Id);
+                        //Console.WriteLine("Открыта позиция для аккаунта {0}", account.Id);
                     }
                     catch(SqlException ex)
                     {
@@ -59,31 +58,31 @@ namespace TradeEmulator.Types
 
 
         /// <summary>
-        /// очистить таблицу, по умолчанию не используется
+        /// очистить таблицу
         /// </summary>
         /// <param name="position"></param>
-        //private void ClearTable()
-        //{
-        //    using (SqlConnection connection = new SqlConnection(connectionString))
-        //    {
-        //        string clearQuery = "TRUNCATE TABLE Positions";
-        //        using (SqlCommand command = new SqlCommand(clearQuery, connection))
-        //        {
-        //            try
-        //            {
-        //                connection.Open();
-        //                command.ExecuteNonQuery();
-        //            }
-        //            catch (SqlException ex)
-        //            {
-        //                Console.WriteLine(ex.Message);
-        //            }
-        //            finally
-        //            {
-        //                connection.Close();
-        //            }
-        //        }
-        //    }
-        //}
+        public void ClearTable()
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string clearQuery = "TRUNCATE TABLE Positions";
+                using (SqlCommand command = new SqlCommand(clearQuery, connection))
+                {
+                    try
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+        }
     }
 }

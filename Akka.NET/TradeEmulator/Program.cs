@@ -18,7 +18,7 @@ namespace TradeEmulator
         static void Main(string[] args)
         {
             ActorSystem TradeEmulatorActor = ActorSystem.Create("TradeActorSystem");
-            IActorRef RequestResolver = TradeEmulatorActor.ActorOf(Props.Create(() => new RequestResolverActor()));
+            IActorRef RequestResolver = TradeEmulatorActor.ActorOf(Props.Create(() => new RequestResolverActor()), "RequestResolverActor");
             Console.ReadLine();
         }
     }
