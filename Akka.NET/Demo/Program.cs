@@ -14,22 +14,36 @@ using Akka.Actor;
 namespace Demo
 {
     // тип сообщения для актора
-    public class Greet
-    {
-        public string Who { get; private set; }
-        public Greet(string who)
-        {
-            Who = who;
-        }
-    }
+   
 
     public class GreetingActor : ReceiveActor
     {
         public GreetingActor()
         {
-            Receive<Greet>(greet => Console.WriteLine("Hello {0}", greet.Who));
+            Receive<Greet>(greet => GreetHandler(greet));
         }
+
+        #region Messages
+        public class Greet
+        {
+            public string Who { get; private set; }
+            public Greet(string who)
+            {
+                Who = who;
+            }
+        }
+        #endregion
+
+        #region Handlers
+        private void GreetHandler(Greet g)
+        {
+            Console.WriteLine("Hello {0}", g.Who);
+        }
+        #endregion
     }
+
+
+
 
     class Program
     {
